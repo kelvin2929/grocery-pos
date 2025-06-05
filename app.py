@@ -1,34 +1,33 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime
-import json
 import os
+from pymongo import MongoClient
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-INVENTORY_FILE = 'inventory.json'
-TRANSACTION_FILE = 'transactions.json'
+# MongoDB Atlas 连接（来自环境变量）
+MONGO_URI = os.getenv('MONGODB_URI')
+client = MongoClient(MONGO_URI)
+db = client['queenpos']
+inventory_collection = db['inventory']
+transaction_collection = db['transactions']
 
+# 加载库存数据
 def load_inventory():
-    with open(INVENTORY_FILE, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    inventory = inventory_collection.find({}, {'_id': 0})
+    return list(inventory)
 
+# 保存库存数据
 def save_inventory(inventory):
-    with open(INVENTORY_FILE, 'w', encoding='utf-8') as f:
-        json.dump(inventory, f, ensure_ascii=False, indent=2)
+    inventory_collection.delete_many({})
+    inventory_collection.insert_many(inventory)
 
+# 保存交易记录
 def save_transaction(transaction):
-    if not os.path.exists(TRANSACTION_FILE):
-        transactions = []
-    else:
-        with open(TRANSACTION_FILE, 'r', encoding='utf-8') as f:
-            transactions = json.load(f)
-    total = sum(item['price'] * item['quantity'] for item in transaction['cart'].values())
-    transaction['total'] = total
+    transaction['total'] = sum(item['price'] * item['quantity'] for item in transaction['cart'].values())
     transaction['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    transactions.append(transaction)
-    with open(TRANSACTION_FILE, 'w', encoding='utf-8') as f:
-        json.dump(transactions, f, ensure_ascii=False, indent=2)
+    transaction_collection.insert_one(transaction)
 
 @app.route('/')
 def index():
@@ -41,9 +40,6 @@ def index():
             item for item in inventory
             if query in item['name_en'].lower() or query in item['name_th'].lower()
         ]
-
-    total = sum(item['price'] * item['quantity'] for item in cart.values())
-    return render_template('index.html', inventory=inventory, cart=cart, total=total, lang=language)
     total = sum(item['price'] * item['quantity'] for item in cart.values())
     return render_template('index.html', inventory=inventory, cart=cart, total=total, lang=language)
 
@@ -78,9 +74,6 @@ def checkout():
         product = next((p for p in inventory if p['id'] == product_id), None)
         if product:
             product['stock'] -= item['quantity']
-
-
-
     save_inventory(inventory)
     save_transaction({'cart': cart, 'total': total})
     session['cart'] = {}
@@ -126,14 +119,8 @@ def manage_inventory():
 
 @app.route('/sales_records')
 def sales_records():
-    if not os.path.exists(TRANSACTION_FILE):
-        transactions = []
-    else:
-        with open(TRANSACTION_FILE, 'r', encoding='utf-8') as f:
-            transactions = json.load(f)
-    language = session.get('lang', 'en')
-    return render_template('sales_records.html', transactions=transactions, lang=language)
-
+    transactions = transaction_collection.find({}, {'_id': 0})
+    return render_template('sales_records.html', transactions=list(transactions), lang=session.get('lang', 'en'))
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
