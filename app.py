@@ -136,4 +136,4 @@ def sales_records():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
