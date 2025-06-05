@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Checkout Success' if lang == 'en' else 'ชำระเงินสำเร็จ' }}</title>
+    <meta http-equiv="refresh" content="3;url={{ url_for('index') }}">
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+    <h1 style="color: green;">{{ 'Checkout Success' if lang == 'en' else 'ชำระเงินสำเร็จ' }}</h1>
+    <p style="font-size: 20px;">{{ 'Thank you for your purchase!' if lang == 'en' else 'ขอบคุณสำหรับการซื้อ!' }}</p>
+    <p style="font-size: 24px; font-weight: bold;">
+        {{ 'Total' if lang == 'en' else 'รวม' }}: 
+        {{ '฿%.2f' % total if lang == 'th' else '$%.2f' % total }}
+    </p>
+    <a href="{{ url_for('index') }}" style="font-size: 18px; text-decoration: none; color: blue;">
+        {{ 'Back to Home' if lang == 'en' else 'กลับหน้าหลัก' }}
+    </a>
+</body>
+</html>

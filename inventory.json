@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "name_en": "Apple",
+    "name_th": "แอปเปิ้ล",
+    "price": 1.5,
+    "stock": 43
+  },
+  {
+    "id": "2",
+    "name_en": "Banana",
+    "name_th": "กล้วย",
+    "price": 1.0,
+    "stock": 0
+  },
+  {
+    "id": "3",
+    "name_en": "Orange",
+    "name_th": "ส้ม",
+    "price": 2.0,
+    "stock": 0
+  },
+  {
+    "id": "4",
+    "name_en": "11",
+    "name_th": "11",
+    "price": 11.0,
+    "stock": 0
+  }
+]

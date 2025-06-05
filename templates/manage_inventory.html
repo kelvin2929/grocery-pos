@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Manage Inventory' if lang == 'en' else 'จัดการสินค้า' }}</title>
+</head>
+<body>
+    <h1>{{ 'Manage Inventory' if lang == 'en' else 'จัดการสินค้า' }}</h1>
+    <a href="{{ url_for('index') }}">{{ 'Back to Home' if lang == 'en' else 'กลับหน้าหลัก' }}</a>
+    <form method="post">
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th>ID</th>
+                <th>{{ 'Name (EN)' if lang == 'en' else 'ชื่อ (EN)' }}</th>
+                <th>{{ 'Name (TH)' if lang == 'en' else 'ชื่อ (TH)' }}</th>
+                <th>{{ 'Price' if lang == 'en' else 'ราคา' }}</th>
+                <th>{{ 'Stock' if lang == 'en' else 'คงเหลือ' }}</th>
+                <th>{{ 'Delete' if lang == 'en' else 'ลบ' }}</th>
+            </tr>
+            {% for item in inventory %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td><input type="text" name="name_en_{{ item.id }}" value="{{ item.name_en }}"></td>
+                <td><input type="text" name="name_th_{{ item.id }}" value="{{ item.name_th }}"></td>
+                <td><input type="number" step="0.01" name="price_{{ item.id }}" value="{{ item.price }}"></td>
+                <td><input type="number" name="stock_{{ item.id }}" value="{{ item.stock }}"></td>
+                <td>
+                    <button type="submit" name="action" value="delete_{{ item.id }}">{{ 'Delete' if lang == 'en' else 'ลบ' }}</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" name="action" value="update">{{ 'Save Changes' if lang == 'en' else 'บันทึก' }}</button>
+    </form>
+
+    <h2>{{ 'Add New Product' if lang == 'en' else 'เพิ่มสินค้าใหม่' }}</h2>
+    <form method="post">
+        <input type="hidden" name="action" value="add">
+        <input type="text" name="new_id" placeholder="ID" required>
+        <input type="text" name="new_name_en" placeholder="Name EN" required>
+        <input type="text" name="new_name_th" placeholder="Name TH" required>
+        <input type="number" step="0.01" name="new_price" placeholder="Price" required>
+        <input type="number" name="new_stock" placeholder="Stock" required>
+        <button type="submit">{{ 'Add' if lang == 'en' else 'เพิ่ม' }}</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>POS Web</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .language-switch, .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .language-switch a, .nav-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: blue;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .product {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 0;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ 'Point of Sale' if lang == 'en' else 'จุดขาย' }}</h1>
+
+    <!-- Language Switch -->
+    <div class="language-switch">
+        <a href="{{ url_for('set_language', lang='en') }}">EN</a> | 
+        <a href="{{ url_for('set_language', lang='th') }}">TH</a>
+    </div>
+
+    <!-- Search Box -->
+    <form method="get" action="{{ url_for('index') }}">
+        <input type="text" name="q" placeholder="{{ 'Search...' if lang == 'en' else 'ค้นหา...' }}" value="{{ request.args.get('q', '') }}">
+        <button type="submit">{{ 'Search' if lang == 'en' else 'ค้นหา' }}</button>
+    </form>
+
+    <!-- Product List -->
+    <h2>{{ 'Products' if lang == 'en' else 'สินค้า' }}</h2>
+
+    {% if inventory %}
+    <ul>
+        {% for item in inventory %}
+        <li class="product">
+            <span>
+                {{ item['name_en'] if lang == 'en' else item['name_th'] }} -
+                {{ ('$%.2f' % item['price']) if lang == 'en' else ('฿%.2f' % item['price']) }}
+                ({{ 'Stock' if lang == 'en' else 'คงเหลือ' }}: {{ item['stock'] }})
+            </span>
+
+            {% if item['stock'] > 0 %}
+                <a href="{{ url_for('add_to_cart', product_id=item['id']) }}">
+                    {{ 'Add' if lang == 'en' else 'เพิ่ม' }}
+                </a>
+            {% else %}
+                <a href="#" onclick="showOutOfStockAlert(); return false;" style="color: gray; cursor: not-allowed;">
+                    {{ 'Sold Out' if lang == 'en' else 'หมด' }}
+                </a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: red; text-align: center;">
+        {{ 'No products found.' if lang == 'en' else 'ไม่พบสินค้า' }}
+    </p>
+    {% endif %}
+
+    <!-- Cart -->
+    <h2>{{ 'Cart' if lang == 'en' else 'ตะกร้า' }}</h2>
+    <ul>
+        {% for pid, item in cart.items() %}
+        <li>
+            {{ item['name_en'] if lang == 'en' else item['name_th'] }} × {{ item['quantity'] }}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Total -->
+    <p style="font-size: 18px; font-weight: bold; text-align:center;">
+        {{ 'Total' if lang == 'en' else 'รวม' }}:
+        {{ ('$%.2f' % total) if lang == 'en' else ('฿%.2f' % total) }}
+    </p>
+
+    <!-- Navigation -->
+    <div class="nav-links">
+        <a href="{{ url_for('checkout') }}">{{ 'Checkout' if lang == 'en' else 'ชำระเงิน' }}</a> |
+        <a href="{{ url_for('manage_inventory') }}">{{ 'Manage Inventory' if lang == 'en' else 'จัดการสินค้า' }}</a> |
+        <a href="{{ url_for('sales_records') }}">{{ 'Sales Records' if lang == 'en' else 'ประวัติการขาย' }}</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Sales Records' if lang == 'en' else 'ประวัติการขาย' }}</title>
+    <style>
+        table { width: 90%; margin: auto; border-collapse: collapse; }
+        th, td { border: 1px solid #888; padding: 8px; text-align: center; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">
+        {{ 'Sales Records' if lang == 'en' else 'ประวัติการขาย' }}
+    </h1>
+    <a href="{{ url_for('index') }}">{{ 'Back to Home' if lang == 'en' else 'กลับหน้าหลัก' }}</a>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{{ 'Timestamp' if lang == 'en' else 'เวลา' }}</th>
+                <th>{{ 'Items' if lang == 'en' else 'รายการสินค้า' }}</th>
+                <th>{{ 'Total' if lang == 'en' else 'รวม' }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in transactions %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ record.timestamp }}</td>
+                <td>
+                    <ul style="list-style:none; padding:0;">
+                        {% for id, item in record.cart.items() %}
+                        <li>
+                            {{ item['name_en'] if lang == 'en' else item['name_th'] }} x {{ item['quantity'] }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    {% if record.total %}
+                        {{ '฿%.2f' % record.total if lang == 'th' else '$%.2f' % record.total }}
+                    {% else %}
+                        {{ 'N/A' }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
